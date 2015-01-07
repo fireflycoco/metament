@@ -1,0 +1,18 @@
+#!/usr/bin/python
+
+import numpy as np
+from metlib.misc.misc import get_sys_argv
+
+output = './output.npy'
+infiles = get_sys_argv([], [], [('output', str)])
+
+biglist = []
+for fname in infiles:
+    try:
+        data = np.load(fname)
+        biglist.append(data)
+    except Exception as e:
+        print "Error reading file:", fname, e
+result = np.array(biglist)
+np.save(output, result)
+

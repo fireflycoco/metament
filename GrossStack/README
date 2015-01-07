@@ -1,0 +1,99 @@
+GrossStack is a helper system for running models. It is based on Dai Zhanpeng's "runpool" design for seperating different runs into their own folder, so that they can run at the same time.
+
+GrossStack is often abrev....ed as G3S in the system.
+
+-----------------------------------------------------------------------------
+System requirements:
+
+	Python, C-shell(tsch)
+
+	Environment variable: G3S
+
+	Add metamet into PYTHONPATH
+
+metamet/shell provides several useful scripts for running models. For convenient, please link metamet/shell as ${G3S}/util .
+
+-----------------------------------------------------------------------------
+Concepts:
+
+G3S: 
+	Environment variable G3S is required to tell the root path of the GrossStack system.
+
+CASE:
+	A set of model configurations is called a CASE.
+
+PART:
+	The modules of a model is called a PART. A PART may contain several sub PARTs. 
+	For the M3 system, its sub parts are MM5(or WRF), MCIP, SMOKE, CMAQ, etc. For MM5, its sub parts are GTS_DECODER, REGRID, LITTLE_R, INTERPF, MM5 etc, and for REGRID, its sub parts are pregrid and regridder. For CMAQ, its sub parts are BCON, ICON, JPROC, CCTM etc. 
+
+RUN:
+	A single run of a case. Usually identified with the date of the run.
+
+RUNTIME:
+	The date to identify a single RUN of a CASE.
+
+RUNNAME:
+	A compound of CASE and RUNTIME: CASE.RUNTIME
+
+RUNPOOL:
+	The folder that contains all runs as subfolder.
+
+
+------------------------------------------------------------------------------
+Setting up a case:
+
+1. Choose a name for the case, and make a folder in ${G3S}/case/ with that name.
+
+2. Put the parts in that folder. And edit the scripts of each part, so that they are able to run in a folder in the form of:
+	${G3S}/runpool/${RUNNAME}/PATH/TO/THE/PART. 
+   Available G3S system environment variables: 
+	$G3S, $CASENAME, $RUNTIME, $RUNNAME
+
+3. Add some special files to each part. Described in the following part
+
+4. Goto ${G3S}/sys , execute: ./main CASENAME RUNTIME
+	or ./main_norun CASENAME RUNTIME, to setup the run only.
+
+-------------------------------------------------------------------------------
+Special files for G3S system:
+
+Read the template files for detail.
+
+G3S_require: [optional]
+	This file indicates the prerequisite parts of this part.
+	Format:
+	PARTNAME RETRY_DELAY_SECONDS RETRY_TIMES WAIT_TIMES
+
+G3S_run , G3S_pre: [optional]
+	Each Part's G3S_run will be run when running that part, after all requirements fulfilled. G3S_pre works similar, except for that it's run before trying to solve requirements.
+
+G3S_runrc.csh: [optional]
+	Contains env vars for G3S_run, G3S_pre, G3S_check etc.
+
+G3S_check: [optional]
+	Check script after G3S_run, to ensure the part is run successfully.	
+
+G3S_relative_position: [required]
+	This file contains the relative position of the part to the run root dir. It will be generated automatically by ${G3S}/sys/util/SETUP . If some parts are not set up by SETUP, please generate this file manually.
+
+G3S_start: [required]
+	The start up script in the root directory. Usually submit a qsub file to pbs system. 
+
+G3S_setup: [required in the case folder if the part is set up with ${G3S}/sys/util/SETUP]
+	Set up the case to an individual run.
+
+G3S_status: [Automatically generated]
+	Indicates the status of the part. May be SUCCESS, FAILED and RUNNING.
+	Editing this file may force a part to be re-run. Sometime when the run is terminated abnormally, some G3S_status files may remain in RUNNING state. Please clean them before re-run.
+
+-------------------------------------------------------------------------------
+Log file:
+
+Important messages are automatically logged into the file:
+${G3S}/log/G3S/${CASENAME}/log.${RUNNAME}.log
+
+Use ${G3S}/sys/util/LOG "message" in your script to add other inforamtion to this file.
+
+This log file should be clean and clear for flow diagnosis purpose. Please only add very important infomation to it. Verbose logs should be directed to other log files.
+
+

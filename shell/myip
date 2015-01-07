@@ -1,0 +1,16 @@
+#!/bin/bash -f
+
+# # CentOS has $REMOTEHOST
+if [ "${REMOTEHOST:-}" != "" ] ; then
+	echo ${REMOTEHOST}
+
+# # use SSH_CLIENT
+elif [ "${SSH_CLIENT:-}" != "" ] ; then
+	echo $SSH_CLIENT | cut -d " " -f 1 | sed -e 's/.*:\(.*\)/\1/g'
+
+# # we are on the local machine, return IP
+else 
+	ifconfig | sed -n "s/\ *inet\ addr:\([^\ ]*\).*/\1/gp" | sed -e '/127.0.0.1/d' | head -n 1
+fi
+
+

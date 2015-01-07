@@ -1,0 +1,24 @@
+The following scripts are needed immediately:
+
+
+
+
+
+
+
+
+
+
+++++++++++++++++++++ DONE +++++++++++++++++++++++++++++
+
+================ Wait series =======================
+WAIT_FOR:
+	WAIT_FOR "condition script" "to_exec script" "check interval" "max check count"
+
+WAIT_FILE:
+	WAIT_FILE "flag file" "to_exec script" "check interval" "max check count"
+
+These 2 script can use TRY_N_TIMES
+
+====================================================
+

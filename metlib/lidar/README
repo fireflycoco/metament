@@ -1,0 +1,38 @@
+TODO: add doc
+
+netcdf4 version of lidar data should contain the following vars
+example:
+netcdf test2 {
+dimensions:
+        BIN = 401 ;
+        TEMP = 5 ;
+        POLAR_VOLTAGE = 4 ;
+        TIME = UNLIMITED ; // (300 currently)
+        CHANNEL = 2 ;
+variables:
+        float data(TIME, CHANNEL, BIN) ;
+        float background(TIME, CHANNEL) ;
+        float background_std_dev(TIME, CHANNEL) ;
+        float energy(TIME, CHANNEL) ;
+        float temp(TIME, TEMP) ;
+        string datetime(TIME) ;
+        uint shots_sum(TIME) ;
+        int trigger_frequency(TIME) ;
+        float azimuth_angle(TIME) ;
+        float elevation_angle(TIME) ;
+        float cloud_base_height(TIME) ;
+        float distance(BIN) ;
+
+// global attributes:
+                :lidarname = "Pump House Lidar" ;
+                :bin_time = 1.e-07f ;
+                :bin_size = 14.98962f ;
+                :first_data_bin = 0L ;
+                :start_datetime = "2011-04-01 00:00:08" ;
+                :end_datetime = "2011-04-01 04:59:54" ;
+                :number_records = 300L ;
+                :number_bins = 401L ;
+                :number_channels = 2US ;
+                :desc = "test description of data" ;
+}
+

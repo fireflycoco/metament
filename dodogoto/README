@@ -1,0 +1,31 @@
+Desc:
+	Add a simple tag (e.g. a) to a frequently used folder, then jump to it using simple command:
+	g a
+
+New version:
+	for Bash users:
+		alias g="source ~/bin/dodo_goto_parser.bash"
+Old version:
+	for Cshell users:
+		alias g "source ~/bin/dodo_goto.csh"
+
+	for Bash users:
+		alias g="source ~/bin/dodo_goto.bash"
+
+Usage:
+Add tag:
+	g add TAGNAME
+Jump to a tag:
+	g TAGNAME
+List available tags:
+	g
+Delete a tag:
+	g del TAGNAME
+Delete all tags:
+	for old version: g del all  ( Do not use 'all' as tag name )
+	for new version: g delall
+	
+
+Tag names not recommended:
+	all ls del add
+

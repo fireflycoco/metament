@@ -1,0 +1,3 @@
+Put compiled raw model here.
+
+"${G3S}/sys/util/CP_MODEL path/to/model" will copy ${G3S}/model/path/to/model/* to the ${SETUPDEST} in G3S_setup.

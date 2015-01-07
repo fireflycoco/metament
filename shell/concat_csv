@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ $# == 0 ] ; then
+	echo "Usage: concat_csv file1 file2 ... filen > newfile"
+	exit 1
+fi
+
+head -n 1 $1
+
+for fn in $@
+do
+	tail -n +2 $fn
+done

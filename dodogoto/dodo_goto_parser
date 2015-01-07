@@ -1,0 +1,62 @@
+#!/usr/bin/env python
+
+import os, sys
+import pickle
+
+store_path = os.path.expanduser('~/.dodo_goto_data')
+def load_dodo_goto_data():
+    try:
+        f = open(store_path)
+        d = pickle.load(f)
+        f.close()
+        return d
+    except:
+        return dict()
+
+def save_dodo_goto_data(d):
+    f = open(store_path, 'w+')
+    pickle.dump(d, f)
+    f.close()
+
+data = load_dodo_goto_data()
+result = '.'
+
+def on_ls():
+    keys = data.keys()
+    keys.sort()
+    for k in keys:
+        sys.stderr.write('%8s : %s\n' % (k, data[k]))
+
+def on_del():
+    global data
+    if sys.argv[2] == 'all':
+        data = dict()
+    else:
+        del data[sys.argv[2]]
+    save_dodo_goto_data(data)
+
+def on_add():
+    data[sys.argv[2]] = os.getcwd()
+    save_dodo_goto_data(data)
+
+def on_goto():
+    global result
+    result = data[sys.argv[1]]
+
+try:
+    if len(sys.argv) == 1:
+        on_ls()
+    if len(sys.argv) >= 2:
+        if sys.argv[1] == 'ls':
+            on_ls()
+        elif sys.argv[1] == 'del':
+            on_del()
+        elif sys.argv[1] == 'add':
+            on_add()
+        else:
+            on_goto()
+except:
+    pass
+
+print result
+

@@ -1,0 +1,17 @@
+# Format: 
+# PARTNAME [RETRY_DELAY_SECONDS [RETRY_TIMES [WAIT_RETRY_TIMES]]]
+# if PARTNAME starts with '/', it means absolute path to the run root dir.
+# else, it means relative path of the current part.
+#
+# e.g.
+# /PART1/PART1_1 30 3 100
+# means this part requires part "/PART1/PART1_1" to be run first. 
+#
+# if it hasn't been run successfully yet, 
+# try to run it with at most 3 tries, 30 seconds interval.
+#
+# if it's being run by another run, wait for it to end. 
+# while waiting, recheck whether it's finished every 30 seconds, 
+# with 100 tries at most.
+
+/PART2 5 3 100

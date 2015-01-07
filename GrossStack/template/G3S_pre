@@ -1,0 +1,9 @@
+#!/bin/csh -f
+
+cd `dirname $0`
+if ( -x ./G3S_runrc.csh ) then
+	source ./G3S_runrc.csh
+endif
+
+# # TODO: Add commands here.
+

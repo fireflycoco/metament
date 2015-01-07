@@ -1,0 +1,13 @@
+#!/bin/csh -f
+
+cd `dirname $0`
+if ( -x ./G3S_runrc.csh ) then
+	source ./G3S_runrc.csh
+endif
+
+# # TODO: Add commands here.
+echo "--- Running Part1_1."
+echo "--- It will succeed easily after 2 seconds."
+sleep 2
+
+exit 0

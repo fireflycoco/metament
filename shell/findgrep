@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [ $# -lt 3 ] ; then
+	echo Usage: findgrep rootdir fname_pattern grep_pattern
+	exit 1
+fi
+rootdir=$1
+name_pattern=$2
+grep_arg=$3
+
+for fn in `find $rootdir -iname $name_pattern` 
+do 
+#	echo $fn
+	grep_res=`grep --color=always --line-number -C 1 $grep_arg $fn`
+	if [ "$?" = "0" ] ; then
+		echo -e "\e[1;31m${fn}\e[0m"
+		echo  "$grep_res"
+		echo
+	fi
+done

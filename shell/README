@@ -1,0 +1,60 @@
+This is a collection of shell utils.
+
+Introduction
+
+Every script will print usage when called with no args, except for check_file_size, which shows usage with -h or --help.
+
+Datetime:
+	g2j:
+		convert CCYYMMDD to CCYYJJJ
+	
+	j2g:
+		convert CCYYJJJ to CCYY MM DD
+		
+	j2g_no_space:
+		convert CCYYJJJ to CCYYMMDD
+	
+	gday_change:
+		gday_change CCYYMMDD {+/-}N days
+		e.g. gday_change 20100829 -1000 -> 20071203
+
+	jday_change:
+		jday_change CCYYJJJ {+/-}N days
+		e.g. jday_change 2010364 5 -> 2011004
+		e.g. jday_change 2010001 -3 -> 2009363
+	
+	datediff:
+		datediff YYYYMMDD1 YYYYMMDD2
+
+Repeat or wait:
+
+	TRY_N_TIMES:
+		Repeat some command several times until the command succeeds.
+
+	WAIT_FOR:
+		Wait for some condition before running a command.
+
+	WAIT_FILE:
+		Another version of WAIT_FOR. 
+		Wait for some file to appear before running a command.
+
+Misc:
+	check_file_size:
+		Checking file sizes easily. 
+		See its usage with -h or --help.
+
+	rangefmt:
+		Generate a series of numbers with BEGIN:END:STEP in a certain format. 
+		No need to use cshell's clumsy arithmetics in a while loop.
+		Use foreach ( `rangefmt ...` ) instead.
+		e.g.
+		rangefmt 0:72:6 "%02d"  will generate:
+			00 06 12 18 24 30 36 42 48 54 60 66 72
+
+	arangefmt:
+		like rangefmt, but can handle float number. requires python-numpy.
+
+	random_str:
+		generate a random hex string. Default length: 8 hex numbers.
+		Usage: 
+			random_str [LENGTH]			

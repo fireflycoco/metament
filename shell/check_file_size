@@ -1,0 +1,101 @@
+#!/usr/bin/env python
+"""check_file_size is for checking the size of some files in a check_list file that looks like this:
+
+    # Begin of the example check list file
+    FILE1 > 1024
+    FILE2 == 1200000
+    FILE3 >= 255
+    FILE3 <= 512
+    # End of the example check list file
+
+    The fields are {File name (Absolute path or relative path)} {Compare operator} {File size in bytes}
+    Lines starts with '#' and blank lines will be ignored.
+
+Usage detail:
+    check_file_size CHECK_LIST [ -p prefix ]
+        or
+    echo "Filename >= 1024" | check_file_size [ -p prefix ]
+        or
+    cat << EOF | check_file_size [ -p prefix ]
+    FILE1 == 256
+    FILE2 >= 0
+    EOF
+    
+Return Value:
+    exit with 0 when all files pass the check.
+    exit with 1 when some file fails.
+"""
+
+import os, sys
+import optparse
+import operator
+
+p = optparse.OptionParser()
+p.usage = __doc__
+p.add_option('--prefix', '-p', help='Use this option when all files are in the same path (the prefix), to shorten the file names.', default=None)
+
+options, arguments = p.parse_args()
+
+if len(arguments) == 0:
+    check_list = sys.stdin
+else:
+    check_list = open(arguments[0])
+
+funcs = {   '==':operator.eq, 
+            '>' :operator.gt,
+            '<' :operator.lt,
+            '>=':operator.ge,
+            '<=':operator.le,
+            '=' :operator.eq
+            }
+
+error_count = 0
+print "\t\t##### Start checking file size #####"
+
+
+for line in check_list:
+    line = line.strip()
+    if len(line) == 0 or line.startswith('#'):
+        continue
+    else:
+        tokens = line.split()
+        if options.prefix == None:
+            if tokens[0].startswith('/'):
+                fname = tokens[0]
+            else:
+                fname = './' + tokens[0]
+        else:        
+            fname = '/'.join((options.prefix, tokens[0]))
+        try:
+            filesize = os.stat(fname).st_size
+        except OSError, e:
+            print "%s does not exist" % fname
+            error_count += 1
+            continue
+        try:
+            if len(tokens) >= 3:
+                op = tokens[1]
+                file_expect_size = int(tokens[2])
+#                print funcs[op], file_expect_size
+                if funcs[op](filesize, file_expect_size) == False:
+                    print "%s 's size: %d NOT %s expected: %d" % ( fname, \
+                            filesize, tokens[1], file_expect_size)
+                    if len(tokens) >= 4 and tokens[3].lower() in ('d',
+                                                'del', 'delete', 'rm'):
+                        print "Deleting %s ..." % (fname, )
+                        try:
+                            os.remove(fname)
+                        except Exception, rm_e:
+                            print rm_e
+                    error_count += 1
+        except Exception, e:
+            print e
+            print "Error check item: %s" % line
+            continue
+
+if error_count == 0:
+    print "\t\tEvery file is good."
+    sys.exit(0)
+else:
+    print "\t\t%d files are bad." % error_count
+    sys.exit(1)

@@ -1,0 +1,97 @@
+#!/bin/bash
+
+# cb is a clipboard for files.
+
+if [ -e ./CBDATA ] ; then
+	cblocalfile=CBDATA
+else
+	cblocalfile=/dev/null
+fi
+
+cbdatafile=~/.cbdata
+touch $cbdatafile
+
+onhelp()
+{
+	echo "cb is a clipboard for files."
+	echo "Usage:"
+	echo "    cb 		: list all clipped items."
+	echo "    cb TAG 	: show the entry TAG."
+	echo "    cb add FILE 	: add entry FILE:full path of FILE."
+	echo "    cb add TAG FILE 	: add entry TAG:full path of FILE."
+	echo "    cb note TAG NOTE 	: add entry TAG:NOTE."
+	echo "    cb del TAG 	: delete entry TAG."
+	echo "    cb delall 	: delete all entries."
+	echo "Files:"
+	echo "    global data: ~/.cbdata"
+	echo "    local data: ./CBDATA  (only for fetching information, add or del won't affect this file.)"
+	exit 0
+}
+
+search() 
+{
+	bookmark=$1
+	res=`cat $cblocalfile $cbdatafile | grep "^${bookmark}:" | head -n 1`
+	if [ "$res" != "" ] ; then
+		echo $res | cut -d ":" -f 2-
+	fi
+}
+
+search_nonlocal() 
+{
+	bookmark=$1
+	res=`cat $cbdatafile | grep "^${bookmark}:" | head -n 1`
+	if [ "$res" != "" ] ; then
+		echo $res | cut -d ":" -f 2-
+	fi
+}
+
+if [ $# == 0 ] ; then
+	if [ "$cblocalfile" != "/dev/null" ] ; then
+		cat $cblocalfile | sort | sed -e "s/:/:\t/"
+	fi
+	cat $cbdatafile | sort | sed -e "s/:/:\t/"
+elif [ $# == 1 ] ; then
+	if [ "$1" == "--help" ] || [ "$1" == "-h" ] ; then
+		onhelp
+	elif [ "$1" == "delall" ] ; then
+		echo "Delete all? yes/no"
+		read answer
+		if [ "$answer" == "yes" ] ; then
+			echo "Deleting everything."
+			rm -f $cbdatafile
+			touch $cbdatafile
+		fi
+	else
+		res=`search $1`
+		echo "$res"
+	fi
+elif [ $# == 2 ] ; then
+	if [ $1 == "del" ] || [ "$1" == "rm" ] ; then
+		res=`search_nonlocal $2`
+		if [ "${res}" != "" ] ; then
+			echo "deleting ${2}: 	${res}"
+			sed -i -e "/^${2}:/d" $cbdatafile
+		else
+			echo Nothing to delete.
+		fi
+	elif [ $1 == 'add' ] ; then
+		sed -i -e "/^${2}:/d" $cbdatafile
+		fname="`pwd`/${2}"
+		echo "adding ${2}: 	${fname}"
+		echo "${2}:${fname}" >> $cbdatafile
+	fi
+elif [ $# == 3 ] ; then
+	if [ $1 == 'add' ] ; then
+		sed -i -e "/^${2}:/d" $cbdatafile
+		fname="`pwd`/${3}"
+		echo "adding ${2}: 	${fname}"
+		echo "${2}:${fname}" >> $cbdatafile
+	elif [ $1 == 'note' ] ; then
+		sed -i -e "/^${2}:/d" $cbdatafile
+		echo "adding ${2}: 	${3}"
+		echo "${2}:${3}" >> $cbdatafile
+	fi
+fi
+
+exit 0

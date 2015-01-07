@@ -1,0 +1,11 @@
+#!/bin/csh -f
+
+cd `dirname $0`
+if ( -x ./G3S_runrc.csh ) then
+	source ./G3S_runrc.csh
+endif
+
+# # TODO: Add commands here.
+echo "--- Running root part's G3S_run."
+echo "--- In fact. It does nothing here."
+echo "--- In this case, it works even without this file."

@@ -1,0 +1,16 @@
+#!/bin/csh -f
+
+cd `dirname $0`
+if ( -x ./G3S_runrc.csh ) then
+	source ./G3S_runrc.csh
+endif
+
+# # TODO: Add start up commands here.
+# # e.g. to submit a qsub script for the total run.
+
+which qsub
+if ( $? == 0 ) then
+	qsub ./for_qsub.csh
+else
+	csh ./for_qsub.csh
+endif

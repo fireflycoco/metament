@@ -1,0 +1,18 @@
+#!/bin/csh -f
+
+if ( $#argv < 1 ) then
+	echo "Usage: IS_SUCCESS PartName"
+	exit 1
+endif
+if ( ! $?G3S || ! $?RUNNAME ) then
+	echo "You must have \$G3S and \$RUNNAME"
+	exit 1
+endif
+
+set stat_file = ${G3S}/runpool/${RUNNAME}/$1/G3S_status
+
+if ( "`cat $stat_file`" == "SUCCESS" ) then
+	exit 0
+else
+	exit 1
+endif

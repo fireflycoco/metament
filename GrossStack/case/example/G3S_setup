@@ -1,0 +1,21 @@
+#!/bin/csh -f
+
+# # Available env vars when executing this script: 
+# # 	G3S, CASENAME, RUNTIME, RUNNAME, SETUPDEST
+# #
+# # ${G3S}/sys/util/SETUP and ${G3S}/sys/util/CP_MODEL may help.
+# #
+# # e.g.
+# #
+# # ${G3S}/sys/util/CP_MODEL CMAQ/version1
+# #
+# # cp -rf ./preset/* ${SETUPDEST}/
+# # 
+# # ${G3S}/sys/util/SETUP SUBPART_1
+# # ${G3S}/sys/util/SETUP SUBPART_2
+
+# # TODO: Add commands here.
+${G3S}/sys/util/SETUP PART1
+${G3S}/sys/util/SETUP PART2
+./make_root_runrc.csh
+./make_qsub.csh

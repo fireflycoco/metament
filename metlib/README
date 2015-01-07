@@ -1,0 +1,33 @@
+Metlib is a collection of python libraries for Atmospheric Science.
+
+As for Chinese Users, please notice the differece between the pronunciation of Metlib and Matlab. 
+
+-------------------------------------------------------------------------------
+Requirements:
+Python 2.4+
+dateutil
+numpy and scipy: www.scipy.org
+matplotlib and mpl_toolkits.basemap: http://matplotlib.sourceforge.net/
+pyproj: pyproj.googlecode.com
+netcdf4-python: http://code.google.com/p/netcdf4-python/
+
+metlib.misc.download : requires requests .
+metlib.misc.multiprocess : requires python2.7 (multiprocessing) .
+
+-------------------------------------------------------------------------------
+Tips:
+
+To import most common utils, you may use:
+>>> from metlib.kits import *
+
+large or messy modules: 
+	metlib.data, metlib.io, metlib.misc, metlib.plot, metlib.phy 
+have "_all.py" for importing.
+e.g.,
+>>> from metlib.misc._all import *
+or import submodules individually:
+>>> from metlib.misc.misc import get_sys_argv
+
+other modules may be imported directly:
+>>> from metlib.color import *
+

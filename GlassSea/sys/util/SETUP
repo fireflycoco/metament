@@ -1,0 +1,76 @@
+#!/usr/bin/env python
+
+import sys, os
+from metlib.shell import script_helper as sh
+
+if len(sys.argv) < 1:
+    print "Usage: SETUP [PARTNAME]"
+    sys.exit(1)
+
+if len(sys.argv) >= 2:
+    partname = sys.argv[1]
+    os.chdir(partname)
+else:
+    partname = ''
+
+# ##### Determine G3S's path in `pwd` format
+current_path = os.getcwd()
+
+g3sroot_origin = os.environ['G3S'].rstrip('/')
+g3sroot_origin = os.path.expanduser(g3sroot_origin)
+g3sroot_origin = os.path.expandvars(g3sroot_origin)
+
+os.chdir(g3sroot_origin)
+g3sroot_path = os.getcwd()
+os.chdir(current_path)
+
+caseroot_path = g3sroot_path + '/case' 
+assert(current_path.startswith(caseroot_path))
+
+# ##### Determine the case's struct 
+folders = current_path[len(caseroot_path) :].split('/')
+folders = [item for item in folders if item != '' ]
+
+casename = folders[0]
+structs = folders[1:]
+
+assert(casename == os.environ['CASENAME'])
+
+runtime = os.environ['RUNTIME']
+runname = os.environ['RUNNAME']
+
+runroot = g3sroot_path + '/runpool/' + runname
+
+destfolder = runroot + '/' + '/'.join(structs)
+
+print 'Setting up %s : %s' % (runname, ' - '.join(structs))
+
+try:
+    os.makedirs(destfolder)
+except OSError, e:
+    if e.errno != 17:
+        raise
+
+# ##### make the setup script knows where the dest is with $SETUPDEST
+os.environ['SETUPDEST'] = destfolder
+
+# ##### generate relative_position file
+print 'Generating relative_position file'
+relpos_file = open(destfolder+'/G3S_relative_position', 'w')
+relpos_file.write('/' + '/'.join(structs))
+relpos_file.close()
+
+# ##### some routine functions
+for item in ['G3S_require', 'G3S_check', 'G3S_run', 'G3S_start', 'G3S_pre',
+    'G3S_runrc.csh']:
+    script_file = '/'.join((current_path, item))
+    if os.path.exists(script_file):
+        sh.watchrun(cmd='cp -f %s %s/' % (item, destfolder),
+            err_message='Copying %s to %s/' % (item, destfolder))
+
+# ##### setup 
+if os.path.exists('./G3S_setup') and os.access('./G3S_setup', os.X_OK):
+    sh.watchrun(cmd='./G3S_setup', err_message='Setting up part: '+partname)
+
+sys.exit(0)
+

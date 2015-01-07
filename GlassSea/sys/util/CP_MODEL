@@ -1,0 +1,36 @@
+#!/bin/csh -f
+
+if ( $?SETUPDEST ) then
+	set required_argc = 1
+else
+	set required_argc = 2
+endif
+
+if ( $#argv < $required_argc ) then
+	echo "Usage: CP_MODEL model_path [cp_to_path]"
+	exit 1
+endif
+
+set model_path = $1
+if ( $#argv == 1 ) then
+	set cp_to_path = "${SETUPDEST}"
+else 
+	set cp_to_path = "$2"
+endif
+
+if ( -d ${cp_to_path} ) then
+	
+else if ( -e ${cp_to_path} ) then
+	rm -f ${cp_to_path}
+endif
+
+mkdir -p ${cp_to_path}
+
+if ( $? ) then
+	echo "Cannot proceed with copying model. Exiting"
+	exit 1
+endif
+
+echo "Copying  ${model_path}  To  ${cp_to_path}"
+cp -rfu ${G3S}/model/${model_path}/* ${cp_to_path}/
+exit $?

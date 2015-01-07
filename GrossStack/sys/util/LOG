@@ -1,0 +1,46 @@
+#!/bin/csh -f
+
+if ( $#argv == 0 ) then
+	echo "Usage: LOG contents or LOG --reset"
+	exit 1
+endif
+
+if ( ! $?G3S ) then
+	echo "Need env var G3S"
+	exit 1
+endif
+
+if ( ! $?CASENAME ) then
+	echo "Need env var CASENAME"
+	exit 1
+endif
+
+if ( ! $?RUNNAME ) then
+	echo "Need env var RUNNAME"
+	exit 1
+endif
+
+set log_root = "${G3S}/log/G3S/${CASENAME}"
+if ( ! -d $log_root ) then
+	mkdir -p $log_root
+	if ( $? != 0 ) then
+		echo "Cannot mkdir $log_root"
+		exit 1
+	endif
+endif
+
+set log_file = ${log_root}/log.${RUNNAME}.log
+
+if ( "$1" == "--reset" ) then
+	echo "Reseting log file: $log_file"
+	rm -f $log_file
+else
+	if ( $?G3S_MUTE_LOG == 0 ) then
+		echo `date`
+		echo "Writing to G3S log $log_file : "
+		echo "    $1"
+		date >> $log_file
+		echo "    $1" >> $log_file
+		echo "" >> $log_file
+	endif
+endif

@@ -1,0 +1,53 @@
+#!/bin/csh -f
+
+# TRY_N_TIMES
+
+# A script wrapper for Trying a command several times until succeeded
+# Usage : TRY_N_TIMES "command_to_be_tried" n_times delay_seconds ["check_command"]
+# Succeed is defined as "Both the command to be tried and the optional check_command exit with 0"
+# by claydodo
+
+if ( $#argv < 3) then
+	echo 'Usage: TRY_N_TIMES "script_to_be_tried" n_times delay_seconds ["check_script"]'
+	exit 1
+endif
+
+set script_to_be_tried = "$1"
+set n_times = $2
+set delay_seconds = $3
+set check_script = ":"            
+if ( $#argv >= 4 ) then
+	set check_script = "$4"
+endif
+
+echo "        Trying: '${script_to_be_tried}' $n_times times with $delay_seconds seconds interval"
+if ( "$check_script" != ":" ) then
+	echo "        Trying:             with a check script: '${check_script}' "
+endif
+
+if ( "$n_times" == "0" ) then 
+	echo "        Trying total number is set to 0, Exiting as SUCCESS"
+	exit 0
+endif
+
+set try_count = 0
+while ( $try_count != $n_times )
+	echo "        Trying: Try number $try_count / $n_times"
+	$script_to_be_tried
+	set main_result = $?
+	$check_script
+	set check_result = $?
+	
+	if ( "$main_result" == "0" && "$check_result" == "0" ) then
+		echo "        Trying:      succeeded !"
+		exit 0
+	endif
+
+	echo "        Trying:        Failed with main: $main_result , check: $check_result"
+	echo
+	sleep $delay_seconds
+@	try_count += 1
+end
+
+echo "        Trying:        Finally failed"
+exit 1

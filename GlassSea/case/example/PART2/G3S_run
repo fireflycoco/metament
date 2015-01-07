@@ -1,0 +1,15 @@
+#!/bin/csh -f
+
+cd `dirname $0`
+if ( -x ./G3S_runrc.csh ) then
+	source ./G3S_runrc.csh
+endif
+
+# # TODO: Add commands here.
+echo "--- Running PART2's G3S_run."
+echo "--- It will generate a file: part2_output.txt."
+
+echo "`date`" >& ./part2_output.txt
+
+exit 0
+

@@ -1,0 +1,98 @@
+#!/bin/csh -f
+
+if ( $#argv >= 1 ) then
+	# $1 is part name. 
+	cd $1
+endif
+
+set partname = `cat G3S_relative_position`
+
+echo ================== Part Info: ====================
+echo "    Part: $partname"
+echo "        `date`"
+echo "        `pwd`"
+echo '          *   *   *   *   *   *   *   *   *  '
+
+echo "        Checking This Part's status before everything"
+if ( -e ./G3S_status ) then
+	set before_run_check = "`cat ./G3S_status`"
+	if ( "$before_run_check" == "RUNNING" ) then
+		echo "        This Part itself is being running, Exiting"
+		${G3S}/sys/util/LOG "Part is already running : $partname"
+		exit 1
+	else if ( "$before_run_check" == "SUCCESS" ) then
+		echo "        This Part has already be done, Exiting"
+		${G3S}/sys/util/LOG "Part is already runned successfully : $partname"
+		exit 0
+	endif
+endif
+echo "        This Part hasn't be runned successfully before"
+echo RUNNING > ./G3S_status
+
+if ( -x "./G3S_pre" ) then
+	echo "    Running this part's G3S_pre"
+	${G3S}/sys/util/LOG "Running part's G3S_pre: $partname"
+	if ( -x "./G3S_runrc.csh" ) then
+		source ./G3S_runrc.csh
+	endif
+	./G3S_pre
+	set pre_res = $?
+	if ( $pre_res != 0 ) then
+		${G3S}/sys/util/LOG "Error running part's G3S_pre: $partname"
+		echo "    Error running G3S_pre"
+		echo FAILED > ./G3S_status
+		exit $pre_res
+	endif
+endif
+
+${G3S}/sys/util/REQUIRE ./G3S_require
+set reqres = $?
+if ( "$reqres" != "0" ) then
+	echo '    Error: Requirement not fulfilled. Exiting.'
+	echo FAILED > ./G3S_status
+	exit 1
+else
+	echo "    All requirements fulfilled, back to this part:"
+	echo "    ---------------- Part Info: ------------------"
+	echo "    Part: `cat G3S_relative_position`"
+	echo "        `date`"
+	echo "        `pwd`"
+endif
+
+if ( -x "./G3S_run" ) then
+	echo "    Running this part's G3S_run"
+	${G3S}/sys/util/LOG "Running part's G3S_run : $partname"
+	if ( -x "./G3S_runrc.csh" ) then
+		source ./G3S_runrc.csh
+	endif
+	./G3S_run
+	set runres = $?	
+else 
+	set runres = 0
+endif
+
+if ( -x "./G3S_check" ) then
+	echo "    Checking this part's result"
+	./G3S_check
+	set chkres = $?
+else
+	set chkres = 0
+endif
+
+if ( "$runres" == "0" && "$chkres" == "0" ) then
+	echo "    SUCCESS! "
+	${G3S}/sys/util/LOG "Success : $partname"
+	echo SUCCESS > ./G3S_status
+	exit 0
+else if ( "$runres" == "0" && "$chkres" == "255" ) then
+        echo "    Run SUCCESS, but Check returned 255, which means although check failed, but OK to go"
+        ${G3S}/sys/util/LOG "Half Success, going on: $partname"
+        echo SUCCESS > ./G3S_status
+        exit 0
+else
+	echo "    FAILED! "
+	${G3S}/sys/util/LOG "Failed : $partname, G3S_run returned $runres, G3S_check returned $chkres"
+	echo FAILED > ./G3S_status
+	exit 1
+endif
+

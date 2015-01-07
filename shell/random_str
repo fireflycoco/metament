@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ $# != 0 ] ; then
+	length=$1
+else
+	length=8
+fi
+
+od -An -N${length} -x /dev/urandom  | tr -d '\n '
+echo

@@ -1,0 +1,29 @@
+#!/bin/csh -f
+#Usage: WAIT_FILE "FLAG FILE" "TODO" INTERVAL(seconds) TIMES
+#by claydodo
+set INTERVAL = 60
+set TIMES = -1
+if ( $#argv < 2 ) then
+	echo 'Usage: WAIT_FILE "FLAG FILE" "TODO" INTERVAL(seconds) TIMES'
+	exit 1 
+endif
+set FLAGFILE = "$1"
+set TODO = "$2"
+if ($#argv >= 3 ) then
+	set INTERVAL = $3
+endif
+if ($#argv >= 4 ) then
+	set TIMES = $4
+endif
+
+set prefix = `dirname $0`
+echo ${prefix}/TRY_N_TIMES '"'$FLAGFILE'"' $TIMES $INTERVAL
+${prefix}/TRY_N_TIMES "stat $FLAGFILE" $TIMES $INTERVAL
+if ( $? != 0 ) then
+	echo "        Condition not fulfiled : $FLAGFILE"
+	exit 1
+endif
+
+$TODO
+exit $?
+
